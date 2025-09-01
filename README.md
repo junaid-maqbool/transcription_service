@@ -300,20 +300,14 @@ black src/ tests/
 The service uses a multi-stage Dockerfile optimized for production:
 
 ```bash
-# Build the image
-docker build -t audio-transcription:latest .
+# Build the image by running following command from repository top level 
+sudo DOCKER_BUILDKIT=1 docker build -f transcription_service/Dockerfile -t transcription_service ./
 
 # Run container with GPU support (if available)
-docker run --gpus all -p 8000:8000 \
-  -e LOG_LEVEL=WARNING \
-  -e BACKGROUND_WORKERS=8 \
-  audio-transcription:latest
+sudo docker run  --gpus all -p 8000:8000 transcription_service
 
 # Run container CPU-only
-docker run -p 8000:8000 \
-  -e LOG_LEVEL=WARNING \
-  -e BACKGROUND_WORKERS=4 \
-  audio-transcription:latest
+docker run -p 8000:8000 transcription_service
 ```
 
 ### Docker Architecture
@@ -360,9 +354,13 @@ The Dockerfile uses a multi-stage build with micromamba for efficient dependency
 ### Logs and Debugging
 
 Enable debug logging:
-```bash
-export DEBUG=true
-export LOG_LEVEL=DEBUG
+- Set following values in src/settings
+```
+class Settings(BaseSettings):
+    # Application settings
+    debug: bool = Field(default=True)
+    log_level: str = Field(default="DEBUG")
+    ...
 ```
 
 Check logs for detailed processing information and error traces.
