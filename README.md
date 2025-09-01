@@ -160,7 +160,7 @@ Input Audio → Validation → Normalization → Vocal Separation → Transcript
 
 - **FastAPI + Uvicorn**: Async request handling
 - **Process Pool**: Background workers for each request
-- **Worker Count**: Configurable (default: 8 processes)
+- **Worker Count**: Configurable (default: 4 processes)
 - **Isolation**: Each request processed in separate worker process
 
 ### Observability
@@ -222,7 +222,7 @@ The `tests/test_audios/` directory contains test files with varying noise condit
 1. **harvard.wav** 
    - **Noise Level:** Clear speech, no background noise, 18 secs
    - **Performance:** Service transcribed audio perfectly without any error 
-2. **song.mp3**\
+2. **song.mp3**
    - **Noise Level:** Song with loud background instruments/music, 10 secs 
    - **Performance:** Despite loud music noise service transcribed audio with perfectly without any error
 3. **poor-audio.ogg** 
