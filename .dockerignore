@@ -1,0 +1,16 @@
+.idea/
+**/.git
+**/*.egg-info
+**/tmp/*
+**/__pycache__/
+**/venv
+**/Dockerfile
+**/build
+**/.pytest_cache/
+**/.coverage
+coverage_reports/
+**/cache/*
+**/media/*
+.github/
+.azure-pipeline/
+**/external/*
