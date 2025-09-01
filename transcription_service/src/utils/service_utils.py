@@ -16,7 +16,7 @@ def validate_file_name_and_ext(file: UploadFile) -> str:
                 "detail": "No filename provided",
             },
         )
-    file_extension = Path(file.filename).suffix.lower().lstrip('.')
+    file_extension = Path(file.filename).suffix.lower().lstrip(".")
     if file_extension not in settings.supported_formats:
         raise HTTPException(
             status_code=400,
@@ -26,6 +26,7 @@ def validate_file_name_and_ext(file: UploadFile) -> str:
             },
         )
     return file_extension
+
 
 def validate_file_size(content) -> float:
     file_size = len(content)

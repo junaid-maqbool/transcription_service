@@ -28,20 +28,20 @@ def sample_wav_content():
     """Create minimal valid WAV file content."""
     # Minimal WAV header + silent audio data
     wav_header = (
-            b"RIFF"
-            + (1000).to_bytes(4, "little")  # file size - 8
-            + b"WAVE"
-            + b"fmt "
-            + (16).to_bytes(4, "little")  # fmt chunk size
-            + (1).to_bytes(2, "little")  # audio format (PCM)
-            + (1).to_bytes(2, "little")  # num channels
-            + (16000).to_bytes(4, "little")  # sample rate
-            + (32000).to_bytes(4, "little")  # byte rate
-            + (2).to_bytes(2, "little")  # block align
-            + (16).to_bytes(2, "little")  # bits per sample
-            + b"data"
-            + (960).to_bytes(4, "little")  # data chunk size
-            + b"\x00" * 960  # silence data
+        b"RIFF"
+        + (1000).to_bytes(4, "little")  # file size - 8
+        + b"WAVE"
+        + b"fmt "
+        + (16).to_bytes(4, "little")  # fmt chunk size
+        + (1).to_bytes(2, "little")  # audio format (PCM)
+        + (1).to_bytes(2, "little")  # num channels
+        + (16000).to_bytes(4, "little")  # sample rate
+        + (32000).to_bytes(4, "little")  # byte rate
+        + (2).to_bytes(2, "little")  # block align
+        + (16).to_bytes(2, "little")  # bits per sample
+        + b"data"
+        + (960).to_bytes(4, "little")  # data chunk size
+        + b"\x00" * 960  # silence data
     )
     return wav_header
 
@@ -127,7 +127,13 @@ class TestTranscriptionAPI:
         files = {"file": ("test.txt", b"not audio", "text/plain")}
         data = {"config": json.dumps({})}
         pool = multiprocessing.Pool(8)
-        with patch.object(Request, 'state', new_callable=lambda: type('obj', (object,), {'app_state': AppState(bg_workers_process_pool=pool)})()):
+        with patch.object(
+            Request,
+            "state",
+            new_callable=lambda: type(
+                "obj", (object,), {"app_state": AppState(bg_workers_process_pool=pool)}
+            )(),
+        ):
             response = client.post("/v1/transcribe/", files=files, data=data)
         assert response.status_code == 400
 
@@ -138,7 +144,13 @@ class TestTranscriptionAPI:
         files = {"file": ("large.wav", large_content, "audio/wav")}
         data = {"config": json.dumps({})}
         pool = multiprocessing.Pool(8)
-        with patch.object(Request, 'state', new_callable=lambda: type('obj', (object,), {'app_state': AppState(bg_workers_process_pool=pool)})()):
+        with patch.object(
+            Request,
+            "state",
+            new_callable=lambda: type(
+                "obj", (object,), {"app_state": AppState(bg_workers_process_pool=pool)}
+            )(),
+        ):
             response = client.post("/v1/transcribe/", files=files, data=data)
         assert response.status_code == 413
 
@@ -147,7 +159,13 @@ class TestTranscriptionAPI:
         files = {"file": ("test.wav", sample_wav_content, "audio/wav")}
         data = {"config": "invalid json string"}
         pool = multiprocessing.Pool(8)
-        with patch.object(Request, 'state', new_callable=lambda: type('obj', (object,), {'app_state': AppState(bg_workers_process_pool=pool)})()):
+        with patch.object(
+            Request,
+            "state",
+            new_callable=lambda: type(
+                "obj", (object,), {"app_state": AppState(bg_workers_process_pool=pool)}
+            )(),
+        ):
             response = client.post("/v1/transcribe/", files=files, data=data)
         assert response.status_code == 400
 
@@ -171,7 +189,9 @@ class TestTranscriptionSegments:
             ]
         }
 
-        segments = TranscriptionSegment.get_segments_from_whisper_results(whisper_result)
+        segments = TranscriptionSegment.get_segments_from_whisper_results(
+            whisper_result
+        )
         assert len(segments) == 2
         assert segments[0].text == "first part"
         assert segments[1].text == "second part"
@@ -183,19 +203,24 @@ class TestServiceIntegration:
     @patch("whisper.load_model")
     @patch("demucs.api.Separator")
     @patch("demucs.api.save_audio")
-    def test_transcription_service_workflow(self, mock_save_audio, mock_separator_class, mock_whisper):
+    def test_transcription_service_workflow(
+        self, mock_save_audio, mock_separator_class, mock_whisper
+    ):
         """Test the complete transcription workflow."""
         # Mock Demucs separator
         mock_separator = Mock()
         mock_separator.samplerate = 16000
-        mock_separator.separate_audio_file.return_value = ("origin", {"vocals": "vocals_tensor"})
+        mock_separator.separate_audio_file.return_value = (
+            "origin",
+            {"vocals": "vocals_tensor"},
+        )
         mock_separator_class.return_value = mock_separator
 
         # Mock Whisper model
         mock_model = Mock()
         mock_model.transcribe.return_value = {
             "text": "this is a test",
-            "segments": [{"start": 0.0, "end": 3.0, "text": "this is a test"}]
+            "segments": [{"start": 0.0, "end": 3.0, "text": "this is a test"}],
         }
         mock_whisper.return_value = mock_model
 
@@ -208,7 +233,9 @@ class TestServiceIntegration:
         assert vocals_path.name == "vocals.wav"
 
         # Test transcription
-        text, segments, load_time = service.transcribe_audio(vocals_path, "small.en", "cpu")
+        text, segments, load_time = service.transcribe_audio(
+            vocals_path, "small.en", "cpu"
+        )
         assert text == "this is a test"
         assert len(segments) == 1
         assert isinstance(load_time, float)
@@ -232,5 +259,6 @@ class TestServiceIntegration:
 def pytest_configure():
     """Configure pytest settings."""
     pytest.main_test_dir = Path(__file__).parent
+
 
 # Run tests with: pytest test_transcription_service.py -v

@@ -49,10 +49,16 @@ class TranscriptionSegment(BaseModel):
     text: str
 
     @staticmethod
-    def get_segments_from_whisper_results(result_dict: Dict[str, Any]) -> List["TranscriptionSegment"]:
+    def get_segments_from_whisper_results(
+        result_dict: Dict[str, Any],
+    ) -> List["TranscriptionSegment"]:
         segments = []
         for segment in result_dict["segments"]:
-            segments.append(TranscriptionSegment(start=segment["start"], end=segment["end"], text=segment["text"]))
+            segments.append(
+                TranscriptionSegment(
+                    start=segment["start"], end=segment["end"], text=segment["text"]
+                )
+            )
         return segments
 
 

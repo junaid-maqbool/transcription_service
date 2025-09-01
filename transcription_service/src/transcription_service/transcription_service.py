@@ -19,11 +19,17 @@ class TranscriptionService:
         demucs.api.save_audio(vocals, vocals_fp, samplerate=separator.samplerate)
         return vocals_fp
 
-    def transcribe_audio(self, vocals_fp: Path, transcription_model: str = "tiny.en", device: str = "cuda") \
-            -> Tuple[str, List[TranscriptionSegment], float]:
+    def transcribe_audio(
+        self,
+        vocals_fp: Path,
+        transcription_model: str = "tiny.en",
+        device: str = "cuda",
+    ) -> Tuple[str, List[TranscriptionSegment], float]:
         load_stime = time.time()
         transcriber = whisper.load_model(transcription_model, device=device)
         load_time = time.time() - load_stime
         result = transcriber.transcribe(audio=str(vocals_fp))
-        segments = TranscriptionSegment.get_segments_from_whisper_results(result_dict=result)
+        segments = TranscriptionSegment.get_segments_from_whisper_results(
+            result_dict=result
+        )
         return result["text"], segments, load_time

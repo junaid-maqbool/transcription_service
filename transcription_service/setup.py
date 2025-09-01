@@ -29,7 +29,7 @@ requirements = [
     "pyyaml",
     "tqdm",
     "openai-whisper",
-    "numpy==1.22.0"
+    "numpy==1.22.0",
 ]
 setup(
     name="transcription_service",

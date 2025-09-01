@@ -8,7 +8,9 @@ import structlog
 from torch import multiprocessing
 
 from src.transcription_service.settings import settings
-multiprocessing.set_start_method('spawn', force=True)
+
+multiprocessing.set_start_method("spawn", force=True)
+
 
 class AppState(BaseModel):
     bg_workers_process_pool: Any
@@ -21,9 +23,7 @@ async def lifespan(app: FastAPI):
     logger.info("Starting audio transcription service")
 
     try:
-        pool = multiprocessing.Pool(
-            processes=settings.background_workers
-        )
+        pool = multiprocessing.Pool(processes=settings.background_workers)
         app_state = AppState(
             bg_workers_process_pool=pool,
         )
@@ -38,4 +38,3 @@ async def lifespan(app: FastAPI):
     finally:
         # Shutdown
         logger.info("Shutting down audio transcription service")
-

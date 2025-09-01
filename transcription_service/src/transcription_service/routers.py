@@ -27,8 +27,13 @@ logger = structlog.get_logger(__name__)
 router = APIRouter()
 
 
-
-def transcribe_audio(audio_fp: Path, transcription_config: TranscriptionConfig, request_id: str, duration: float, sample_rate: int) -> TranscriptionResponse:
+def transcribe_audio(
+    audio_fp: Path,
+    transcription_config: TranscriptionConfig,
+    request_id: str,
+    duration: float,
+    sample_rate: int,
+) -> TranscriptionResponse:
     start_time = time.time()
     transcription_service = TranscriptionService()
     device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -103,8 +108,8 @@ async def transcribe(
     request_id = getattr(request.state, "request_id", "unknown")
     state: AppState = request.state.app_state
     pool = state.bg_workers_process_pool
-    transcription_config: TranscriptionConfig = (
-        TranscriptionConfig.from_json_string(config)
+    transcription_config: TranscriptionConfig = TranscriptionConfig.from_json_string(
+        config
     )
     # Validate file and file extension
     file_extension = validate_file_name_and_ext(file=file)
@@ -125,14 +130,16 @@ async def transcribe(
         audio_path=audio_fp
     )
     try:
-        async_response = pool.apply_async(transcribe_audio,
-                                                       kwds=dict(
-                                                           audio_fp=audio_fp,
-                                                           transcription_config=transcription_config,
-                                                           request_id=request_id,
-                                                           duration=audio_duration,
-                                                           sample_rate=sample_rate,
-                                                       ))
+        async_response = pool.apply_async(
+            transcribe_audio,
+            kwds=dict(
+                audio_fp=audio_fp,
+                transcription_config=transcription_config,
+                request_id=request_id,
+                duration=audio_duration,
+                sample_rate=sample_rate,
+            ),
+        )
         transcription_response = async_response.get()
         return transcription_response
     except HTTPException:
